@@ -12,6 +12,8 @@ export function ActivityPopup(props: {
   console.log("closeIcon",formatS3Image(closeIcon || "",40,40));
   var popup_id = "";
   var jsonStr = "";
+  // jsonStr = "{\"store_id\":2032,\"store_type\":1,\"title\":\"\惊\喜\商\店\开\启\中\",\"sub_title\":\"\优\惠99%\",\"start_time\":1750753440,\"end_time\":1753574400,\"link_url\":\"voya:\\/\\/openpage?target=webview&url=https%3A%2F%2Fassets.voya.world%2Fweb%2Fweb-component-test%2Fpages%2F1750414098555.html%3Fsource%3Dlynxpop\",\"products\":[{\"product_id\":371,\"product_type\":\"BAG_GIFT\",\"tag\":\"\",\"title\":\"\永\恆\之\心\",\"sub_title\":\"52%OFF\",\"ori_price\":39980,\"price\":19000,\"discount\":52,\"icon\":\"https:\\/\\/img.voya.world\\/gift_resource\\/icon\\/2022_12_27\\/phpN4hPEO-63aa9495841cc.png\",\"ani_url\":\"https:\\/\\/img.voya.world\\/gift_resource\\/animation\\/2022_12_27\\/phpMcZePN-63aa94959c575.mp4\",\"effective_duration\":86400},{\"product_id\":372,\"product_type\":\"BAG_GIFT\",\"tag\":\"\",\"title\":\"\水\晶\鞋\",\"sub_title\":\"33%OFF\",\"ori_price\":2980,\"price\":1980,\"discount\":33,\"icon\":\"https:\\/\\/img.voya.world\\/gift_resource\\/icon\\/2022_11_23\\/phpR3OaSX-637daa27bbe2e.png\",\"ani_url\":\"https:\\/\\/img.voya.world\\/gift_resource\\/animation\\/2022_12_26\\/phpO9CylQ-63a91ea4a58f4.mp4\",\"effective_duration\":86400},{\"product_id\":373,\"product_type\":\"BAG_GIFT\",\"tag\":\"\",\"title\":\"\丘\比\特\",\"sub_title\":\"50%OFF\",\"ori_price\":4000,\"price\":2000,\"discount\":50,\"icon\":\"https:\\/\\/img.voya.world\\/gift_resource\\/icon\\/2022_11_23\\/phpMxWMLT-637dab6878c02.png\",\"ani_url\":\"https:\\/\\/img.voya.world\\/gift_resource\\/animation\\/2022_11_23\\/phpBE8Ysv-637daa64090f4.mp4\",\"effective_duration\":86400}],\"style\":{\"right_icon\":\"https:\\/\\/assets.voya.world\\/admin\\/20250624\\/685a86df104f623685a86df104f7.webp\",\"background\":\"https:\\/\\/assets.voya.world\\/admin\\/20250620\\/6855364fc6a7596855364fc6a77.webp\",\"bottom_icon\":\"https:\\/\\/assets.voya.world\\/admin\\/20250624\\/685a9260627a28685a9260627a3.png\",\"buttom_text\":\"\去\抢\购\",\"buttom_text_color\":\"#FFFFFF\",\"products\":{\"back_icon\":\"https:\\/\\/assets.voya.world\\/admin\\/20250624\\/685a86df0f08510685a86df0f087.webp\",\"tag_icon\":\"https:\\/\\/assets.voya.world\\/admin\\/20250624\\/685a86df0f5c879685a86df0f5c9.webp\",\"tag_txt_color\":\"#FFFFFF\"}}}";
+  
 
   if (initData.activity_popup_data as string){
     jsonStr = initData.activity_popup_data as string;
@@ -207,12 +209,7 @@ function StartCountdown(props: {
         <image src = {formatS3Image(backIcon || "",25,25) || ""} style={{width: '25px',height: '25px'}}>
          <text style={{ color:'#220954',fontSize: '12px',textAlign: 'center',lineHeight: '25px'}}>{count[3]}</text> 
         </image>
-        {/* <text style={{ color:'#220954',fontSize: '12px',textAlign: 'center',lineHeight: '25px'}}>{count[0]}</text> 
-        <text style={{ color:'#220954',fontSize: '12px',textAlign: 'center',lineHeight: '25px'}}>：</text> 
-
-        <text style={{ color:'#220954',fontSize: '12px',textAlign: 'center',lineHeight: '25px'}}>：</text> 
-        <text style={{ color:'#220954',fontSize: '12px',textAlign: 'center',lineHeight: '25px'}}>：</text> 
-        */}
+        
       </view> 
     </view>
   )
@@ -229,6 +226,9 @@ function CenterViewItem(props: {
   const backIcon = props.backIcon ?? ""
   const tagIcon = props.tagIcon ?? ""
   const tagText = props.model?.sub_title ?? ""
+  if (props.storeType == 1){
+    props.tagColor = "white";
+  } 
   const iconCoint = "https://assets.voya.world/admin/20250620/68553c18782eb3868553c18782ee.webp"
    console.log("formatS3Image hhh",formatS3Image(props.model?.icon || "",64,64,1));
   return (
@@ -292,12 +292,11 @@ function CenterViewItem(props: {
           )}
 
       {props.storeType == 1 && (
-         <view style={{position: 'absolute',bottom: '0',width:'100%',height:'37px',display: 'flex',flexDirection: 'column',justifyContent: 'end',alignItems: 'center'}}> 
-         
-         <text style={{ position: 'absolute',top:'0',width: '100%',height: '17px',color:'white',fontSize: '12px',textAlign: 'center' ,lineHeight:'100%',textDecoration: 'line-through'}}>{props.model?.ori_price}</text> 
-        <view style={{position: 'absolute',bottom:'3',width: '100%',height: '24px',display: 'flex',flexDirection: 'row',justifyContent: 'center'}}>  
-        <image src = {formatS3Image(iconCoint || "",8,8) || ""} style={{width: '8px',height: '8px',alignSelf: 'center'}}/> 
-         <text style={{ color:'white',fontSize: '12px',textAlign: 'center' ,lineHeight:'18px',marginLeft:'2px'}}>{props.model?.price}</text> 
+         <view style={{position: 'absolute',bottom: '0',width:'100%',height:'40px',display: 'flex',flexDirection: 'column',justifyContent: 'end',alignItems: 'center'}}> 
+          <text style={{ position: 'absolute',top:'0',width: '100%',height: '17px',color:'white',fontSize: '12px',textAlign: 'center' ,lineHeight:'100%',textDecoration: 'line-through'}}>{props.model?.ori_price}</text> 
+          <view style={{position: 'absolute',bottom:'12px',width: '100%',height: '18px',display: 'flex',flexDirection: 'row',justifyContent: 'center'}}>  
+            <image src = {formatS3Image(iconCoint || "",8,8) || ""} style={{width: '8px',height: '8px',alignSelf: 'center'}}/> 
+            <text style={{ color:'white',fontSize: '12px',textAlign: 'center' ,lineHeight:'18px',marginLeft:'2px'}}>{props.model?.price}</text> 
         </view>
      </view>
       )}
