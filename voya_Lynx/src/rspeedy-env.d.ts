@@ -22,6 +22,9 @@ declare namespace Lynx {
   interface InitData {
     global_data?: string;
     message: string;
+    activity_popup_data?: string;
+    popup_id?: string;
+    server_time?: string;
   }
   const __initData: InitData;
   
@@ -45,6 +48,11 @@ declare global {
   declare let NativeModules: {
     ExplorerModule: { 
       openSchema(url: string): void; 
+    };
+    VY_LynxEventModule: {
+      closeLynxView(popup_id: string): void;
+      openScheme(url: string, popup_id: string): void;
+      closeLynx(popup_id: string): void;
     };
   };
 }

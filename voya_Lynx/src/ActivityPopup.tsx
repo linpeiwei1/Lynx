@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState,useInitData } from '@lynx-js/react'
 import { PopupConfigModel, Product } from './models/PopupConfigModel.js' 
+import formatS3Image from './models/ReplaUrlImageModel.js';
 export function ActivityPopup(props: {
   onMounted?: () => void
 }) {
@@ -7,35 +8,36 @@ export function ActivityPopup(props: {
   const closeBtnClick = () => {
     NativeModules.VY_LynxEventModule.closeLynxView(popup_id); 
   };
+  const closeIcon = "https://assets.voya.world/admin/20250607/684415df4306455684415df43067.png"
+  console.log("closeIcon",formatS3Image(closeIcon || "",40,40));
   var popup_id = "";
   var jsonStr = "";
-  var server_time = "";
+
   if (initData.activity_popup_data as string){
     jsonStr = initData.activity_popup_data as string;
   }
   if (initData.popup_id as string){
     popup_id = initData.popup_id as string;
   } 
-  if (initData.server_time as string){
-    server_time = initData.server_time as string;
-  }
-  console.log("jsonStr",jsonStr);
-  console.log("popup_id",popup_id);
-  const json = JSON.parse(jsonStr); 
- 
+  
+  const json = JSON.parse(jsonStr);
      
-  const model = new PopupConfigModel(json);
+  const model = new PopupConfigModel(json);  
 
-  const closeIcon = "https://assets.voya.world/admin/20250607/684415df4306455684415df43067.png"
-
+  useEffect(() => { 
+    // NativeModules.VY_LynxEventModule.commonFunction("ACTIVITY_LYNXPOP_SHOW",{"activity_id":popup_id});   
+    
+    NativeModules.VY_LynxEventModule.lynxBuryingPoint("ACTIVITY_LYNXPOP_SHOW",{"activity_id":popup_id});   
+  }, []); 
+  
   return( 
     <view style={{width: '100%', height: '100%'}}>
-      <view style={{width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.3)'}} bindtap={closeBtnClick} >
-        <view style={{width: 'calc(100% - 46px)', height: '340px',
+      <view style={{width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.3)'}} >
+        <view style={{width: 'calc(100% - 46px)', height: '364px',
          position: 'absolute', top: '50%', left: '50%', 
            transform: 'translate(-50%, -50%)', borderRadius: '16px',color:'white'}}> 
           
-          <CenterView model={model} popup_id={popup_id} server_time={server_time} /> 
+          <CenterView model={model} popup_id={popup_id}  /> 
           {/* 右上角 */}
           <view style={{
             width: '120px',
@@ -45,7 +47,7 @@ export function ActivityPopup(props: {
             right: '0'
           }} >
              <image 
-              src = {model.style?.right_icon ?? ""}
+              src = {formatS3Image(model.style?.right_icon || "",120,120) || ""}
               style={{
                 width: '100%',
                 height: '100%',
@@ -56,9 +58,9 @@ export function ActivityPopup(props: {
         </view>  
             
         {/* 关闭按钮 在上面视图底下42px的地方  */}
-        <view style={{width:'40px',height: '40px',bottom: '42px', right: '12px',top: 'calc(100%/2 + 220px)',
+        <view style={{width:'40px',height: '40px',right: '12px',top: 'calc(100%/2 + 220px)',
         left: 'calc(100%/2 - 40px/2)',}} bindtap={closeBtnClick}> 
-          <image src = {closeIcon}
+          <image src = {formatS3Image(closeIcon || "",40,40) || ""}
           style={{
             width: '24px',
             height: '24px',
@@ -73,38 +75,29 @@ export function ActivityPopup(props: {
   )
 }
 
+// 中间卡片视图
 function CenterView(props: {
   model: PopupConfigModel,
-  popup_id: string,
-  server_time: string
+  popup_id: string
 }) {
   const title = props.model.title ?? ""
   const backIcon = props.model.style?.background ?? ""
   const bottomBtn = props.model.style?.bottom_icon ?? ""
   const bottomBtnText = props.model.style?.buttom_text ?? ""
   const bottomBtnTextColor = props.model.style?.buttom_text_color ?? ""
+ 
   const handleBottomBtnClick = () => {
+    NativeModules.VY_LynxEventModule.lynxBuryingPoint("ACTIVITY_LYNXPOP_CLICK",{"activity_id":props.popup_id});  
     NativeModules.VY_LynxEventModule.openScheme(props.model.link_url ?? "",props.popup_id); 
-    // NativeModules.VY_LynxEventModule.closeLynx(props.popup_id); 
-  };
-
-  const [count, setCount] = useState(0)
-  const countdown = new Countdown(60, () => {
-    console.log('Countdown complete!');
-  }, (time: number) => {
-    console.log(`Time remaining: ${time}`);
-    setCount(time);
-  });
-  if (count == 60) {
-    // countdown.start();
-  }
-  
+ 
+  }; 
+ 
   return (
     <view style={{width:"100%", height:"calc(100% - 54px)",
       position: 'absolute',borderRadius: '16px',
       top: '54px'}}>
         <image 
-          src = {backIcon}
+          src = {formatS3Image(backIcon || "",400,400) || ""}
           style={{
             width: '100%',
             height: '100%',
@@ -114,9 +107,9 @@ function CenterView(props: {
         />
        {/* 左上角文本 */}
       <text style={{position: 'absolute',height:'24px', top: '12px', left: '12px',fontSize: '16px',fontWeight: '900',color:'white', textOverflow: 'ellipsis',overflow: 'hidden'}}>{title}</text>
-       {/* 60秒倒计时 */}
-      <text style={{position: 'absolute', top: '36px', left: '12px',color:'white'}}>{props.server_time}</text>
-
+       {/* 倒计时 */}
+       <view style={{position: 'absolute',top:"34px",left:"12px",height:'24px'}}><StartCountdown model={props.model} /></view>
+  
       {/* 三个CenterViewItem容器 */}
       <view style={{
         display: 'flex',
@@ -127,19 +120,18 @@ function CenterView(props: {
         top: '69px',
         justifyContent: 'space-around',
         alignItems: 'center',
-        left: '8px',
-
+        left: '8px', 
       }}>
-        <CenterViewItem model={props.model.products?.[0]} backIcon={props.model.style?.products?.back_icon} tagIcon={props.model.style?.products?.tag_icon} />
-        <CenterViewItem model={props.model.products?.[1]} backIcon={props.model.style?.products?.back_icon} tagIcon={props.model.style?.products?.tag_icon} />
-        <CenterViewItem model={props.model.products?.[2]} backIcon={props.model.style?.products?.back_icon} tagIcon={props.model.style?.products?.tag_icon} />
+        <CenterViewItem model={props.model.products?.[0]} backIcon={props.model.style?.products?.back_icon} tagIcon={props.model.style?.products?.tag_icon} tagColor={props.model.style?.products?.tag_color} storeType={props.model.store_type ?? 0}  />
+        {props.model.products?.[1] != null && <CenterViewItem model={props.model.products?.[1]} backIcon={props.model.style?.products?.back_icon} tagIcon={props.model.style?.products?.tag_icon} tagColor={props.model.style?.products?.tag_color} storeType={props.model.store_type ?? 0} /> } 
+        {props.model.products?.[2] != null && <CenterViewItem model={props.model.products?.[2]} backIcon={props.model.style?.products?.back_icon} tagIcon={props.model.style?.products?.tag_icon} tagColor={props.model.style?.products?.tag_color} storeType={props.model.store_type ?? 0} /> } 
       </view>
 
       {/* 底部按钮 */}
-      <view style={{position: 'absolute', width:'281px',height: '64px',bottom: '0px', left: 'calc(100%/2 - 281px/2)'}} 
+      <view style={{position: 'absolute', width:'281px',height: '64px',bottom: '24px', left: 'calc(100%/2 - 281px/2)'}} 
         bindtap={handleBottomBtnClick}>
         <image 
-          src = {bottomBtn}
+          src = {formatS3Image(bottomBtn || "",281,64) || ""}
           style={{
             width: '100%',
             height: '100%',
@@ -153,18 +145,96 @@ function CenterView(props: {
     </view>
   )
 }
+
+// 计时器组件
+function StartCountdown(props: {
+  model: PopupConfigModel 
+}) {
+  const timerBackIcon = "https://assets.voya.world/admin/20250620/68553c14a116d3168553c14a1170.png"
+  const backIcon = "https://assets.voya.world/admin/20250624/685a5af3d153d12685a5af3d1540.webp"
+  const initData = useInitData(); 
+  var server_time =  Date.now() / 1000; 
+  // 获取UTC-0时区时间戳
+ 
+  if (initData.server_time as string){
+    server_time = Number(initData.server_time);
+  } 
+  var serverTime = (props.model.end_time ?? 0) - Number(server_time);  // 计算服务器时间戳与当前时间戳的差值
+
+  const [count, setCount] = useState(["","","",""]);
+
+  const countdown = new Countdown(serverTime, () => {
+    console.log('Countdown complete!');
+  }, (time: number) => {  
+    const hours = Math.floor(time / 3600);
+    const minutes = Math.floor((time % 3600) / 60);
+    const seconds = Math.floor(time % 60);
+    //毫秒
+    var milliseconds = Math.floor((time % 1) * 100);
+    milliseconds += Math.floor(Math.random() * 10);
+    const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
+    setCount(formattedTime.split(":"));
+  });
+  useEffect(() => {
+    countdown.start();
+    return () => {
+      countdown.stop();
+    };
+  }, []);
+ 
+  return (
+    <view style={{width:'120px',height:'25px'}}>
+
+      <view style={{position: 'absolute',top: '0',left: '0',width: '100%',height: '100%',display: 'flex',flexDirection: 'row',justifyContent: 'center'}}> 
+        <image src = {formatS3Image(backIcon || "",25,25) || ""} style={{width: '25px',height: '25px'}}>
+          <text style={{ color:'#220954',fontSize: '12px',textAlign: 'center',lineHeight: '25px'}}>{count[0]}</text> 
+        </image>
+
+        <text style={{ color:'white',fontSize: '12px',textAlign: 'center',lineHeight: '25px',width:'10px'}}>:</text> 
+
+        <image src = {formatS3Image(backIcon || "",25,25) || ""} style={{width: '25px',height: '25px'}}>
+          <text style={{ color:'#220954',fontSize: '12px',textAlign: 'center',lineHeight: '25px'}}>{count[1]}</text> 
+        </image>
+
+        <text style={{ color:'white',fontSize: '12px',textAlign: 'center',lineHeight: '25px',width:'10px'}}>:</text> 
+
+        <image src = {formatS3Image(backIcon || "",25,25) || ""} style={{width: '25px',height: '25px'}}>
+          <text style={{ color:'#220954',fontSize: '12px',textAlign: 'center',lineHeight: '25px'}}>{count[2]}</text> 
+        </image>
+
+        <text style={{ color:'white',fontSize: '12px',textAlign: 'center',lineHeight: '25px',width:'10px'}}>:</text> 
+
+        <image src = {formatS3Image(backIcon || "",25,25) || ""} style={{width: '25px',height: '25px'}}>
+         <text style={{ color:'#220954',fontSize: '12px',textAlign: 'center',lineHeight: '25px'}}>{count[3]}</text> 
+        </image>
+        {/* <text style={{ color:'#220954',fontSize: '12px',textAlign: 'center',lineHeight: '25px'}}>{count[0]}</text> 
+        <text style={{ color:'#220954',fontSize: '12px',textAlign: 'center',lineHeight: '25px'}}>：</text> 
+
+        <text style={{ color:'#220954',fontSize: '12px',textAlign: 'center',lineHeight: '25px'}}>：</text> 
+        <text style={{ color:'#220954',fontSize: '12px',textAlign: 'center',lineHeight: '25px'}}>：</text> 
+        */}
+      </view> 
+    </view>
+  )
+}
+
+// 中间卡片视图子项
 function CenterViewItem(props: {
   model?: Product,
+  storeType: number,
   backIcon?:string,
+  tagColor?:string, 
   tagIcon?:string
 }) {
   const backIcon = props.backIcon ?? ""
   const tagIcon = props.tagIcon ?? ""
-  const tagText = props.model?.tag ?? ""
+  const tagText = props.model?.sub_title ?? ""
+  const iconCoint = "https://assets.voya.world/admin/20250620/68553c18782eb3868553c18782ee.webp"
+   console.log("formatS3Image hhh",formatS3Image(props.model?.icon || "",64,64,1));
   return (
     <view style={{width: '102px',height: '100%'}}>
        <image 
-          src = {backIcon}
+          src = {formatS3Image(backIcon || "",102,100) || ""}
           style={{
             width: '100%',
             height: '100%',
@@ -177,23 +247,61 @@ function CenterViewItem(props: {
             left: '16px',            
             width: '70px',
             height: '20px'}}>
-            <image src = {tagIcon} style={{ 
+            <image src = {formatS3Image(tagIcon || "",70,20) || ""} style={{ 
             width: '100%',
             height: '100%',
             objectFit: 'cover'
             }}/>
-            <text style={{position: 'absolute', width: '100%',height: '100%',fontSize: '13px', fontWeight: 'bold',color: '#562A00',
-            textOverflow: 'ellipsis',overflow: 'hidden',textAlign: 'center',lineHeight:"20px"}}>{tagText}</text>
+            <ScrollingText 
+              text={tagText}
+              style={{
+                position: 'absolute', 
+                width: '70px',
+                height: '20px',
+                fontSize: '13px', 
+                fontWeight: 'bold',
+                color: props.tagColor ?? '#562A00',
+                textAlign: 'center',
+                lineHeight: "20px",
+                whiteSpace: 'nowrap',
+                textOverflow: 'ellipsis',
+                overflow: 'hidden'
+              }}
+              speed={35}
+              delay={10}
+            />
           </view>)} 
-          {/* 大小为74px居中的圆形视图 */}
-      <view style={{width: '74px',height: '74px',borderRadius: '50%',position: 'absolute',top: '50%',left: '50%',transform: 'translate(-50%, -50%)'}}>
-        <image src = {props.model?.icon ?? ""} style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover'
-          }}/>
-      </view>
+          {/* 大小为64px居中的视图 */}
+          {props.storeType == 1 && (
+            <view style={{width: '64px',height: '64px',position: 'absolute',top: '26px',left: 'calc(100%/2 - 64px/2)'}}>
+            <image src = {formatS3Image(props.model?.icon ?? "",64,64) ?? ""} style={{
+                width: '100%',
+                height: '100%', 
+                objectFit: 'contain'
+              }}/>
+          </view>
+          )}
+          {props.storeType != 1 && (
+             <view style={{width: '64px',height: '64px',position: 'absolute',top: '50%',left: '50%',transform: 'translate(-50%, -50%)'}}>
+             <image src = {formatS3Image(props.model?.icon ?? "",64,64) ?? ""  } style={{
+                 width: '100%',
+                 height: '100%', 
+                 objectFit: 'contain'
+               }}/>
+           </view>
+          )}
 
+      {props.storeType == 1 && (
+         <view style={{position: 'absolute',bottom: '0',width:'100%',height:'37px',display: 'flex',flexDirection: 'column',justifyContent: 'end',alignItems: 'center'}}> 
+         
+         <text style={{ position: 'absolute',top:'0',width: '100%',height: '17px',color:'white',fontSize: '12px',textAlign: 'center' ,lineHeight:'100%',textDecoration: 'line-through'}}>{props.model?.ori_price}</text> 
+        <view style={{position: 'absolute',bottom:'3',width: '100%',height: '24px',display: 'flex',flexDirection: 'row',justifyContent: 'center'}}>  
+        <image src = {formatS3Image(iconCoint || "",8,8) || ""} style={{width: '8px',height: '8px',alignSelf: 'center'}}/> 
+         <text style={{ color:'white',fontSize: '12px',textAlign: 'center' ,lineHeight:'18px',marginLeft:'2px'}}>{props.model?.price}</text> 
+        </view>
+     </view>
+      )}
+     
     </view>
   )
 }
@@ -237,4 +345,213 @@ class Countdown {
   getTime() {
     return Math.max(0, Math.ceil(this.seconds));
   }
+}
+
+// 滚动文本组件
+function ScrollingText(props: {
+  text: string;
+  style?: any;
+  speed?: number;
+  delay?: number;
+}) {
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [shouldScroll, setShouldScroll] = useState(false);
+  const [textWidth, setTextWidth] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
+  
+  const speed = props.speed || 50; // 滚动速度 (px/s)
+  const delay = props.delay || 2000; // 延迟时间 (ms)
+  
+  useEffect(() => {
+    // 更精确的文本宽度估算
+    const fontSize = props.style?.fontSize || 16;
+    const fontWeight = props.style?.fontWeight || 'normal';
+    
+    // 根据字体大小和粗细估算字符宽度
+    let charWidth = fontSize * 0.6; // 基础字符宽度
+    if (fontWeight === 'bold' || fontWeight === '900') {
+      charWidth *= 1.2; // 粗体字符更宽
+    }
+    
+    const estimatedTextWidth = props.text.length * charWidth;
+    
+    // 从样式中获取容器宽度
+    const style = props.style || {};
+    let estimatedContainerWidth = 200; // 默认宽度
+    
+    if (style.width) {
+      if (typeof style.width === 'string' && style.width.includes('calc')) {
+        // 处理 calc() 表达式
+        estimatedContainerWidth = 200; // 简化处理
+      } else if (typeof style.width === 'number') {
+        estimatedContainerWidth = style.width;
+      } else if (typeof style.width === 'string' && style.width.includes('px')) {
+        estimatedContainerWidth = parseInt(style.width);
+      }
+    }
+    
+    setTextWidth(estimatedTextWidth);
+    setContainerWidth(estimatedContainerWidth);
+    setShouldScroll(estimatedTextWidth > estimatedContainerWidth);
+  }, [props.text, props.style]);
+  
+  useEffect(() => {
+    if (!shouldScroll) return;
+    
+    let timeoutId: NodeJS.Timeout;
+    let animationId: number;
+    let startTime: number;
+    
+    const animate = (currentTime: number) => {
+      if (!startTime) startTime = currentTime;
+      
+      const elapsed = currentTime - startTime;
+      const scrollDistance = (elapsed / 1000) * speed;
+      
+      if (scrollDistance >= textWidth + delay) {
+        // 滚动完成，重置位置
+        setScrollPosition(0);
+        startTime = currentTime;
+      } else {
+        setScrollPosition(-scrollDistance);
+      }
+      
+      animationId = requestAnimationFrame(animate);
+    };
+    
+    // 延迟开始滚动
+    timeoutId = setTimeout(() => {
+      animationId = requestAnimationFrame(animate);
+    }, delay);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
+  }, [shouldScroll, textWidth, speed, delay]);
+  
+  if (!shouldScroll) {
+    return <text style={props.style}>{props.text}</text>;
+  }
+  
+  return (
+    <view style={{
+      overflow: 'hidden',
+      ...props.style,
+      position: 'relative'
+    }}>
+      <text style={{
+        position: 'absolute',
+        whiteSpace: 'nowrap',
+        transform: `translateX(${scrollPosition}px)`,
+        ...props.style
+      }}>
+        {props.text}
+      </text>
+    </view>
+  );
+}
+
+// 跑马灯文本组件 (连续滚动)
+function MarqueeText(props: {
+  text: string;
+  style?: any;
+  speed?: number;
+  delay?: number;
+}) {
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [shouldScroll, setShouldScroll] = useState(false);
+  const [textWidth, setTextWidth] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
+  
+  const speed = props.speed || 30; // 滚动速度 (px/s)
+  const delay = props.delay || 1000; // 延迟时间 (ms)
+  
+  useEffect(() => {
+    // 文本宽度估算
+    const fontSize = props.style?.fontSize || 16;
+    const fontWeight = props.style?.fontWeight || 'normal';
+    
+    let charWidth = fontSize * 0.6;
+    if (fontWeight === 'bold' || fontWeight === '900') {
+      charWidth *= 1.2;
+    }
+    
+    const estimatedTextWidth = props.text.length * charWidth;
+    const style = props.style || {};
+    let estimatedContainerWidth = 200;
+    
+    if (style.width) {
+      if (typeof style.width === 'string' && style.width.includes('calc')) {
+        estimatedContainerWidth = 200;
+      } else if (typeof style.width === 'number') {
+        estimatedContainerWidth = style.width;
+      } else if (typeof style.width === 'string' && style.width.includes('px')) {
+        estimatedContainerWidth = parseInt(style.width);
+      }
+    }
+    
+    setTextWidth(estimatedTextWidth);
+    setContainerWidth(estimatedContainerWidth);
+    setShouldScroll(estimatedTextWidth > estimatedContainerWidth);
+  }, [props.text, props.style]);
+  
+  useEffect(() => {
+    if (!shouldScroll) return;
+    
+    let timeoutId: NodeJS.Timeout;
+    let animationId: number;
+    let startTime: number;
+    
+    const animate = (currentTime: number) => {
+      if (!startTime) startTime = currentTime;
+      
+      const elapsed = currentTime - startTime;
+      const scrollDistance = (elapsed / 1000) * speed;
+      
+      // 连续滚动：当文本完全移出容器时，从右侧重新开始
+      if (scrollDistance >= textWidth) {
+        setScrollPosition(containerWidth);
+        startTime = currentTime;
+      } else {
+        setScrollPosition(containerWidth - scrollDistance);
+      }
+      
+      animationId = requestAnimationFrame(animate);
+    };
+    
+    timeoutId = setTimeout(() => {
+      animationId = requestAnimationFrame(animate);
+    }, delay);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
+  }, [shouldScroll, textWidth, containerWidth, speed, delay]);
+  
+  if (!shouldScroll) {
+    return <text style={props.style}>{props.text}</text>;
+  }
+  
+  return (
+    <view style={{
+      overflow: 'hidden',
+      ...props.style,
+      position: 'relative'
+    }}>
+      <text style={{
+        position: 'absolute',
+        whiteSpace: 'nowrap',
+        transform: `translateX(${scrollPosition}px)`,
+        ...props.style
+      }}>
+        {props.text}
+      </text>
+    </view>
+  );
 }
