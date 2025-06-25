@@ -15,9 +15,7 @@ export default function formatS3Image(
   h: number,
   q?: number | string
 ) {
-    console.log("src",src);
-    return src;
-    
+  
   if (!src) {
     return null;
   }
@@ -35,12 +33,17 @@ export default function formatS3Image(
     return result;
   }
 
-  function isIncludeCacheOrigin(origin: string) {
-
-    return [
+  function isIncludeCacheOrigin(origin: string) { 
+    var cacheOrigin = [
       'https://cdnetworks.voya.world',
       'https://assets.voya.world',
-    ].includes(origin);
+    ]
+   for(let i = 0; i < cacheOrigin.length; i++){
+    if(origin.includes(cacheOrigin[i])){
+      return true;
+    }
+   }
+   return false;
   }
 
   try {
@@ -64,39 +67,29 @@ export default function formatS3Image(
     } catch (error) {
       return src;
     }
-    console.log("srcUrl.origin",srcUrl);
-    if (isIncludeCacheOrigin(srcUrl.origin)) {
-      resetUrlToOrigin(srcUrl);
+    if (isIncludeCacheOrigin(src)) {
+      let newSRC = src.split("?")[0];
       let width = Math.floor(w);
       let height = Math.floor(h);
-      let ratio = Math.max(1, Math.floor(window.devicePixelRatio));
+      let ratio = 1;
 
-      // 大图泛滥，png比例改为1
-      if (srcUrl.pathname.includes('.png')) {
-        ratio = 1;
-      }
-
+     
       width = getDimesion(width * ratio);
       height = getDimesion(height * ratio);
       srcUrl.searchParams.append(
         'resize',
         `p_4` + (width ? `,w_${width}` : ``) + (height ? `,h_${height}` : ``)
       );
-      if (q) {
-        srcUrl.searchParams.append('Q', q.toString());
-      }
-      console.log("srcUrl.href",`${srcUrl.origin}${decodeURIComponent(
-        srcUrl.pathname
-      )}${decodeURIComponent(srcUrl.search)}`);
-      return `${srcUrl.origin}${decodeURIComponent(
-        srcUrl.pathname
-      )}${decodeURIComponent(srcUrl.search)}`;
+      newSRC = newSRC + "?" + srcUrl.searchParams.toString();
+      console.log("srcUrl.href",newSRC);
+
+      return newSRC;
     } else {
       console.log("srcUrl.href",srcUrl.href);
-      return srcUrl.href;
+      return src;
     }
   } catch (error) {
     console.error(error);
-    return null;
+    return src;
   }
 }
