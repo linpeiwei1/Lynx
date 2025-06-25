@@ -98,8 +98,7 @@ function CenterView(props: {
     <view style={{width:"100%", height:"calc(100% - 54px)",
       position: 'absolute',borderRadius: '16px',
       top: '54px',
-      background: `linear-gradient(to bottom, ${topColor} 0%, #F7F7F7 100%)`}}>
-        2个颜色渐变 从上到下
+      background: `linear-gradient(to bottom, ${topColor} 0%, #F7F7F7 100%)`}}> 
         <image 
           src = {formatS3Image(backIcon || "",400,400) || ""}
           style={{
@@ -172,10 +171,10 @@ function StartCountdown(props: {
     const minutes = Math.floor((time % 3600) / 60);
     const seconds = Math.floor(time % 60);
     //毫秒
-    var milliseconds = Math.floor((time % 1) * 100);
-    milliseconds += Math.floor(Math.random() * 10);
-    const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
-    setCount(formattedTime.split(":"));
+    var randomindex = Math.floor(Math.random() * 10);
+    var milliseconds = Math.floor((time % 1) * 10);
+    milliseconds = milliseconds*10 + randomindex;
+    setCount([`${hours.toString().padStart(2, '0')}`,`${minutes.toString().padStart(2, '0')}`,`${seconds.toString().padStart(2, '0')}`,`${milliseconds.toString().padStart(2, '0')}`]);
   });
   useEffect(() => {
     countdown.start();
