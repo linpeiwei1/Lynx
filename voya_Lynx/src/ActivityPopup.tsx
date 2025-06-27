@@ -30,7 +30,7 @@ export function ActivityPopup(props: {
   const model = new PopupConfigModel(json);  
 
   useEffect(() => {     
-    NativeModules.VY_LynxEventModule.lynxBuryingPoint("ACTIVITY_LYNXPOP_SHOW",{"activity_id":popup_id});   
+    NativeModules.VY_LynxEventModule.lynxBuryingPoint("ACTIVITY_LYNXPOP_SHOW",{"activity_id":(model.store_id ?? 0).toString()});   
   }, []); 
   
   return( 
@@ -90,7 +90,7 @@ function CenterView(props: {
   const bottomBtnTextColor = props.model.style?.buttom_text_color ?? ""
  
   const handleBottomBtnClick = () => { 
-    NativeModules.VY_LynxEventModule.lynxBuryingPoint("ACTIVITY_LYNXPOP_CLICK",{"activity_id":props.popup_id});  
+    NativeModules.VY_LynxEventModule.lynxBuryingPoint("ACTIVITY_LYNXPOP_CLICK",{"activity_id":(props.model.store_id ?? 0).toString()});  
     NativeModules.VY_LynxEventModule.openScheme(props.model.link_url ?? "",props.popup_id);  
   }; 
   const topColor = props.model.store_type == 1 ? "#FE5C3F" : "#5331AB" 
