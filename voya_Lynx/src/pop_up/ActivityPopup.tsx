@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState,useInitData } from '@lynx-js/react'
-import { PopupConfigModel, Product } from './models/PopupConfigModel.js' 
-import formatS3Image from './models/ReplaUrlImageModel.js';
+import { PopupConfigModel, Product } from '../models/PopupConfigModel.js' 
+import formatS3Image from '../models/ReplaUrlImageModel.js';
 import timerBack from "./assets/icon_timer_back.webp?inline";
 
 

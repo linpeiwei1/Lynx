@@ -1,15 +1,11 @@
-import { root, useState } from '@lynx-js/react'
+import { root } from '@lynx-js/react'
+  
+import { FullScreenView } from './pop_up/FullScreenView.jsx'
  
-import { ActivityPopup } from './ActivityPopup.jsx'
-
-interface ContainerPageState {
-  showHomePage: boolean;
-  showAppPage: boolean; 
-  globalData: string;
-} 
-
 // root.render(<App3 />)
-root.render(<ActivityPopup />)
+// root.render(<ActivityPopup />)
+
+root.render(<FullScreenView />)
 
 
 if (import.meta.webpackHot) {
