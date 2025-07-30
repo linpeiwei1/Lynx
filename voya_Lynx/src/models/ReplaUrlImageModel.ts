@@ -13,7 +13,8 @@ export default function formatS3Image(
   src: string,
   w: number,
   h: number,
-  q?: number | string
+  q?: number | string,
+  autoScale: boolean = true
 ) {
   
   if (!src) {
@@ -71,8 +72,12 @@ export default function formatS3Image(
       let newSRC = src.split("?")[0];
       let width = Math.floor(w);
       let height = Math.floor(h);
+      
+      // 自动检测设备像素比进行缩放
       let ratio = 1;
-
+      if (autoScale && typeof window !== 'undefined' && window.devicePixelRatio) {
+        ratio = Math.min(window.devicePixelRatio, 3); // 限制最大为3倍
+      }
      
       width = getDimesion(width * ratio);
       height = getDimesion(height * ratio);

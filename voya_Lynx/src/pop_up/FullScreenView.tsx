@@ -9,7 +9,7 @@ export function FullScreenView(props: {
 }) {
     const initData = useInitData();
     var popup_id = "";
-    var jsonStr = "";
+    var jsonStr = "{}";
     // jsonStr = "{\"img_url\":\"https:\\/\\/assets.voya.world\\/admin\\/20250218\\/67b3ef75ed65c8667b3ef75ed65f.webp\",\"url\":\"http:\\/\\/sssss\"}";
 
     if (initData.activity_popup_data as string) {
@@ -19,17 +19,15 @@ export function FullScreenView(props: {
         popup_id = initData.popup_id as string;
     }
     const json = JSON.parse(jsonStr);
-    const iconURL = json["img_url"] as string;
-    const schemeURL = json["url"] as string;
+    const iconURL = json["img_url"] as string ?? "";
+    const schemeURL = json["url"] as string ?? "";
 
-    const closeBtnClick = () => {
-        console.log("closeBtnClick", popup_id);
-        // NativeModules.VY_LynxEventModule.closeLynxView(popup_id);  
+    const closeBtnClick = () => { 
+        NativeModules.VY_LynxEventModule.closeLynxView(popup_id);  
     };
     const openSchemeClick = () => {
-
-        console.log("openSchemeClick", popup_id);
-        // NativeModules.VY_LynxEventModule.openScheme(schemeURL,popup_id);  
+ 
+        NativeModules.VY_LynxEventModule.openScheme(schemeURL,popup_id);  
     };
     const closeIcon = "https://assets.voya.world/admin/20250729/68887b941bfea068887b941bfed.webp"
 
@@ -50,9 +48,8 @@ export function FullScreenView(props: {
             {/* 以下View的点击事件拦截底部View的点击事件 */}
             <view style={{
                 width: '290px',
-                height: '364px',
-                borderRadius: '16px',
-                overflow: 'hidden',
+                height: '364px', 
+                overflow: 'hidden', 
             }} catchtap={() => {
                 // 使用 catchtap 阻止事件冒泡
                 openSchemeClick();
@@ -61,8 +58,8 @@ export function FullScreenView(props: {
                     src={formatS3Image(iconURL || "", 290, 364) || ""}
                     style={{
                         width: '100%',
-                        height: '100%',
-                        objectFit: 'cover'
+                        height: '100%',  
+                        objectFit: 'cover' // 或改为 'contain' 如果需要完整显示图片
                     }}
                 />
             </view>
