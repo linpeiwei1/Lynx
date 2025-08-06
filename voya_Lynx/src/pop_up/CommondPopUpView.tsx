@@ -52,7 +52,7 @@ export function CommondPopUpView(props: {
             justifyContent: 'center',
             alignItems: 'center',
             zIndex: 1000,
-        }} bindtap={closeBtnClick}>
+        }} >
 
 
             {/* 以下View的点击事件拦截底部View的点击事件 */}
@@ -115,7 +115,7 @@ export function CommondPopUpView(props: {
             <view style={{
                 width: '40px', height: '40px', right: '12px', top: 'calc(100%/2 + 220px)',
                 left: 'calc(100%/2 - 40px/2)', position: 'absolute'
-            }}>
+            }}bindtap={closeBtnClick}>
                 <image src={formatS3Image(closeIcon || "", 40, 40) || ""} style={{ width: '24px', height: '24px', objectFit: 'cover' }} />
             </view>
         </view>

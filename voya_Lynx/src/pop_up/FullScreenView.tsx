@@ -23,6 +23,7 @@ export function FullScreenView(props: {
     const schemeURL = json["url"] as string ?? "";
 
     const closeBtnClick = () => { 
+        
         NativeModules.VY_LynxEventModule.closeLynxView(popup_id);  
     };
     const openSchemeClick = () => {
@@ -32,7 +33,7 @@ export function FullScreenView(props: {
     const closeIcon = "https://assets.voya.world/admin/20250729/68887b941bfea068887b941bfed.webp"
 
 
-    return (
+    return ( 
         <view style={{
             position: 'fixed',
             top: 0,
@@ -44,7 +45,7 @@ export function FullScreenView(props: {
             justifyContent: 'center',
             alignItems: 'center',
             zIndex: 1000
-        }} bindtap={closeBtnClick}>
+        }} >
             {/* 以下View的点击事件拦截底部View的点击事件 */}
             <view style={{
                 width: '290px',
@@ -67,7 +68,7 @@ export function FullScreenView(props: {
             <view style={{
                 width: '40px', height: '40px', right: '12px', top: 'calc(100%/2 + 220px)',
                 left: 'calc(100%/2 - 40px/2)', position: 'absolute'
-            }}>
+            }}bindtap={closeBtnClick}>
                 <image src={formatS3Image(closeIcon || "", 40, 40) || ""} style={{ width: '24px', height: '24px', objectFit: 'cover' }} />
             </view>
         </view>
